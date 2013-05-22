@@ -77,7 +77,7 @@ def crash(cookie, cookie_test=true)
   data = ''
 
   5.times do
-    payload = $payload
+    payload = $payload.dup
 
     tcp_session(ARGV[0],ARGV[1].to_i) do |s|
       $count += 1
