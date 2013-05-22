@@ -77,7 +77,7 @@ def crash(cookie, cookie_test=true)
       data = s.recv(10)
     end
 
-    return true if data.strip.length == 0
+    return true if data.strip.empty?
   end
 
   return false
