@@ -84,8 +84,9 @@ def crash(cookie, cookie_test=true)
 
       data = s.recv(10)
       s.close
-      return true if data.strip.length == 0
     end
+
+    return true if data.strip.length == 0
   end
 
   return false
